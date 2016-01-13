@@ -9,7 +9,11 @@ class TableRow extends React.Component{
       if (this.props.onRowClick) this.props.onRowClick(e.currentTarget.rowIndex);
     }
   }
+  rowDblClick(e){
 
+    if (this.props.onRowDblClick) this.props.onRowDblClick(e.currentTarget.rowIndex);
+
+  }
   render(){
 
     var trCss={
@@ -22,7 +26,7 @@ class TableRow extends React.Component{
     if(this.props.selectRow && !this.props.enableCellEdit &&
       (this.props.selectRow.clickToSelect || this.props.selectRow.clickToSelectAndEditCell) || this.props.onRowClick){
       return(
-        <tr {...trCss} onClick={this.rowClick.bind(this)}>{this.props.children}</tr>
+        <tr {...trCss} onClick={this.rowClick.bind(this)} ondblclick={this.rowDblClick().bind(this)}>{this.props.children}</tr>
       )
     }else{
       return(
@@ -35,9 +39,11 @@ TableRow.propTypes = {
   isSelected: React.PropTypes.bool,
   enableCellEdit: React.PropTypes.bool,
   onRowClick: React.PropTypes.func,
+  onRowDblClick: React.PropTypes.func,
   onSelectRow: React.PropTypes.func
 };
 TableRow.defaultProps = {
-  onRowClick: undefined
+  onRowClick: undefined,
+  onRowDblClick: undefined
 }
 export default TableRow;
