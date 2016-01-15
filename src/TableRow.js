@@ -1,51 +1,55 @@
 import React from 'react';
 import Const from './Const';
 
-class TableRow extends React.Component{
+class TableRow extends React.Component {
 
-  rowClick(e){
-    if(e.target.tagName !== "INPUT") {
-      if (this.props.selectRow && this.props.selectRow.clickToSelect) this.props.onSelectRow(e.currentTarget.rowIndex, !this.props.isSelected);
-      if (this.props.onRowClick) this.props.onRowClick(e.currentTarget.rowIndex);
+    rowClick(e) {
+        if (e.target.tagName !== "INPUT") {
+            if (this.props.selectRow && this.props.selectRow.clickToSelect) this.props.onSelectRow(e.currentTarget.rowIndex, !this.props.isSelected);
+            if (this.props.onRowClick) this.props.onRowClick(e.currentTarget.rowIndex);
+        }
     }
-  }
 
-  rowDblClick(e){
-     console.log(e);
+    rowDblClick(e) {
+        if (this.props.onRowDblClick) {
+            this.props.onRowDblClick(e.currentTarget.rowIndex);
+        }
 
-    if(this.props.onRowDblClick) {this.props.onRowDblClick(e.currentTarget.rowIndex);}
-
-  }
-  render(){
-
-    var trCss={
-      style:{
-        backgroundColor: this.props.isSelected?this.props.selectRow.bgColor:null
-      },
-      className:(this.props.isSelected && this.props.selectRow.className ? this.props.selectRow.className : '') + (this.props.className||'')
-    };
-
-    if(this.props.selectRow && !this.props.enableCellEdit &&
-      (this.props.selectRow.clickToSelect || this.props.selectRow.clickToSelectAndEditCell) || this.props.onRowClick){
-      return(
-        <tr {...trCss} onClick={this.rowClick.bind(this)} onDoubleClick={this.rowDblClick.bind(this)}>{this.props.children}</tr>
-      )
-    }else{
-      return(
-        <tr {...trCss} onDoubleClick={this.rowDblClick.bind(this)}>{this.props.children}</tr>
-      )
     }
-  }
+
+    render() {
+
+        var trCss = {
+            style: {
+                backgroundColor: this.props.isSelected ? this.props.selectRow.bgColor : null
+            },
+            className: (this.props.isSelected && this.props.selectRow.className ? this.props.selectRow.className : '') + (this.props.className || '')
+        };
+
+        if (this.props.selectRow && !this.props.enableCellEdit &&
+            (this.props.selectRow.clickToSelect || this.props.selectRow.clickToSelectAndEditCell) || this.props.onRowClick) {
+
+            return (
+
+                <tr {...trCss} onClick={this.rowClick.bind(this)} onDoubleClick={this.rowDblClick.bind(this)}>{this.props.children}</tr>
+            )
+        } else {
+
+            return (
+                <tr {...trCss} onDoubleClick={this.rowDblClick.bind(this)}>{this.props.children}</tr>
+            )
+        }
+    }
 }
 TableRow.propTypes = {
-  isSelected: React.PropTypes.bool,
-  enableCellEdit: React.PropTypes.bool,
-  onRowClick: React.PropTypes.func,
-  onRowDblClick: React.PropTypes.func,
-  onSelectRow: React.PropTypes.func
+    isSelected: React.PropTypes.bool,
+    enableCellEdit: React.PropTypes.bool,
+    onRowClick: React.PropTypes.func,
+    onRowDblClick: React.PropTypes.func,
+    onSelectRow: React.PropTypes.func
 };
 TableRow.defaultProps = {
-  onRowClick: undefined,
-  onRowDblClick:undefined
+    onRowClick: undefined,
+    onRowDblClick: undefined
 }
 export default TableRow;

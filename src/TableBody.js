@@ -110,6 +110,7 @@ class TableBody extends React.Component{
           selectRow={isSelectRowDefined?this.props.selectRow:undefined}
           enableCellEdit={this.props.cellEdit.mode !== Const.CELL_EDIT_NONE}
           onRowClick={this.handleRowClick.bind(this)}
+          onRowDblClick={this.props.onRowDblClick}
           onSelectRow={this.handleSelectRow.bind(this)}>
           {selectRowColumn}
           {tableColumns}
@@ -298,6 +299,7 @@ TableBody.propTypes = {
   keyField: React.PropTypes.string,
   selectedRowKeys: React.PropTypes.array,
   onRowClick: React.PropTypes.func,
+  onRowDblClick: React.PropTypes.func,
   onSelectRow: React.PropTypes.func,
   noDataText: React.PropTypes.string
 };
