@@ -1,27 +1,17 @@
+/* eslint max-len: 0 */
 import React from 'react';
-import {LinkContainer} from 'react-router-bootstrap';
-
-// import 'bootstrap/dist/css/bootstrap.css';
 import 'toastr/build/toastr.min.css';
 import '../../../css/react-bootstrap-table.css';
-// import 'jquery';
-// import 'bootstrap';
 import {
-  Navbar,
-  NavBrand,
-  Nav,
-  NavItem,
-  NavDropdown,
-  MenuItem,
   Grid,
   Row,
-  Col,
+  Col
 } from 'react-bootstrap';
 
 class App extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
+    children: React.PropTypes.node
   };
 
   static defaultProps = {};
@@ -31,73 +21,87 @@ class App extends React.Component {
     this.state = {};
   }
 
-  componentDidMount() {
-  }
-
   render() {
-    let examples = [{
+    const examples = [ {
       text: 'Basic Table',
-      href: 'basic',
+      href: 'basic'
     }, {
       text: 'Work on Column',
-      href: 'column',
+      href: 'column'
     }, {
       text: 'Table Sort',
-      href: 'sort',
+      href: 'sort'
     }, {
       text: 'Column Format',
-      href: 'column-format',
+      href: 'column-format'
+    }, {
+      text: 'Column Filter',
+      href: 'column-filter'
     }, {
       text: 'Row Selection',
-      href: 'selection',
+      href: 'selection'
     }, {
       text: 'Pagination',
-      href: 'pagination',
+      href: 'pagination'
     }, {
       text: 'Table Manipulation',
-      href: 'manipulation',
+      href: 'manipulation'
     }, {
       text: 'Cell Edit',
-      href: 'cell-edit',
+      href: 'cell-edit'
     }, {
       text: 'Table Styling',
-      href: 'style',
+      href: 'style'
+    }, {
+      text: 'Remote Data',
+      href: 'remote'
     }, {
       text: 'Advance data edit&insert',
-      href: 'advance',
+      href: 'advance'
+    }, {
+      text: 'Other',
+      href: 'others'
     }, {
       text: 'A complex demo',
-      href: 'complex',
-    }, {
-      text: 'TableDataSet demo',
-      href: 'tableDataSet',
-    }];
+      href: 'complex'
+    } ];
 
-    const exampleMenuItems = examples.map((item, idx)=> {
+    const exampleMenuItems = examples.map((item) => {
       return (
-        <LinkContainer key={idx} to={'/examples/' + item.href}>
-          <MenuItem key={idx}>{item.text}</MenuItem>
-        </LinkContainer>
+        <li key={ item.href }>
+          <a href={ `#/examples/${item.href}` }>{ item.text }</a>
+        </li>
       );
     });
     return (
       <div>
-        <Navbar inverse toggleNavKey={0}>
-          <NavBrand><a href="#">react-bootstrap-table</a></NavBrand>
-          <Nav>
-            <LinkContainer to="/getting-started">
-              <NavItem>Getting started</NavItem>
-            </LinkContainer>
-            <NavDropdown title="Examples" id="collapsible-navbar-dropdown">
-              {exampleMenuItems}
-            </NavDropdown>
-            <NavItem href="https://github.com/AllenFang/react-bootstrap-table" target="_blank">GitHub</NavItem>
-          </Nav>
-        </Navbar>
+        <nav className='navbar navbar-inverse'>
+          <div className='container-fluid'>
+            <div className='navbar-header'>
+              <a className='navbar-brand' href='#'>react-bootstrap-table</a>
+            </div>
+            <div className='collapse navbar-collapse'>
+              <ul className='nav navbar-nav'>
+                <li>
+                  <a href='#/getting-started'>Getting Started</a>
+                </li>
+                <li>
+                  <a href='https://github.com/AllenFang/react-bootstrap-table'>Github</a>
+                </li>
+                <li className='dropdown'>
+                  <a href='#' className='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Examples <span className='caret'></span></a>
+                  <ul className='dropdown-menu'>
+                    { exampleMenuItems }
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
         <Grid fluid>
           <Row>
-            <Col md={12}>
-              {this.props.children}
+            <Col md={ 12 }>
+              { this.props.children }
             </Col>
           </Row>
         </Grid>

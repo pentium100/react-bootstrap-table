@@ -1,112 +1,162 @@
-import React from 'react';
-import Const from './Const';
-import Editor from './Editor'
+import React, { Component, PropTypes } from 'react';
+import editor from './Editor';
 import Notifier from './Notification.js';
 import classSet from 'classnames';
 
-class TableEditColumn extends React.Component{
-    constructor(props){
-        super(props);
-        this.timeouteClear=0;
-        this.state={
-            shakeEditor:false
-        };
-    }
-
-  handleKeyPress(e){
-    if (e.keyCode == 13) { //Pressed ENTER
-      let value = e.currentTarget.type == 'checkbox'?
-                    this._getCheckBoxValue(e):e.currentTarget.value;
-
-      if(!this.validator(value)){
-          return;
-      }
-      this.props.completeEdit(
-        value, this.props.rowIndex, this.props.colIndex);
-    }else if(e.keyCode == 27){
-      this.props.completeEdit(
-        null, this.props.rowIndex, this.props.colIndex);
-    }
+class TableEditColumn extends Component {
+  constructor(props) {
+    super(props);
+    this.timeouteClear = 0;
+    this.state = {
+      shakeEditor: false
+    };
   }
 
-  handleBlur(e){
-    if(this.props.blurToSave){
-      let value = e.currentTarget.type == 'checkbox'?
-                    this._getCheckBoxValue(e):e.currentTarget.value;
-      if(!this.validator(value)){
-          return;
+  handleKeyPress = e => {
+    if (e.keyCode === 13) {
+      // Pressed ENTER
+      const value = e.currentTarget.type === 'checkbox' ?
+                      this._getCheckBoxValue(e) : e.currentTarget.value;
+
+      if (!this.validator(value)) {
+        return;
+      }
+      this.props.completeEdit(value, this.props.rowIndex, this.props.colIndex);
+    } else if (e.keyCode === 27) {
+      this.props.completeEdit(
+        null, this.props.rowIndex, this.props.colIndex);
+    } else if (e.type === 'click' && !this.props.blurToSave) {  // textarea click save button
+      const value = e.target.parentElement.firstChild.value;
+      if (!this.validator(value)) {
+        return;
       }
       this.props.completeEdit(
           value, this.props.rowIndex, this.props.colIndex);
     }
   }
-  validator(value){
-      var ts=this;
-      if(ts.props.editable.validator){
-          var valid=ts.props.editable.validator(value);
-          if(valid!==true){
-              ts.refs.notifier.notice('error',valid,"Pressed ESC can cancel");
-              var input = ts.refs.inputRef;
-              //animate input
-              ts.clearTimeout();
-              ts.setState({shakeEditor:true});
-              ts.timeouteClear=setTimeout(function(){ts.setState({shakeEditor:false});},300);
-              input.focus();
-              return false;
-          }
-      }
-      return true;
 
-  }
-  clearTimeout(){
-      if(this.timeouteClear!=0){
-          clearTimeout(this.timeouteClear);
-          this.timeouteClear=0;
+  handleBlur = e => {
+    e.stopPropagation();
+    if (this.props.blurToSave) {
+      const value = e.currentTarget.type === 'checkbox' ?
+                      this._getCheckBoxValue(e) : e.currentTarget.value;
+      if (!this.validator(value)) {
+        return;
       }
+      this.props.completeEdit(
+          value, this.props.rowIndex, this.props.colIndex);
+    }
   }
-  componentDidMount(){
-      var input = this.refs.inputRef;
-      // input.value = this.props.children||'';
-      input.focus();
+
+  handleCustomUpdate = value => {
+    this.props.completeEdit(value, this.props.rowIndex, this.props.colIndex);
+  }
+
+  // modified by iuculanop
+  // BEGIN
+  validator(value) {
+    const ts = this;
+    let valid = true;
+    if (ts.props.editable.validator) {
+      const input = ts.refs.inputRef;
+      const checkVal = ts.props.editable.validator(value);
+      const responseType = typeof checkVal;
+      if (responseType !== 'object' && checkVal !== true) {
+        valid = false;
+        ts.refs.notifier.notice('error', checkVal, 'Pressed ESC can cancel');
+      } else if (responseType === 'object' && checkVal.isValid !== true) {
+        valid = false;
+        ts.refs.notifier.notice(checkVal.notification.type,
+                                checkVal.notification.msg,
+                                checkVal.notification.title);
+      }
+      if (!valid) {
+        // animate input
+        ts.clearTimeout();
+        ts.setState({ shakeEditor: true });
+        ts.timeouteClear = setTimeout(() => {
+          ts.setState({ shakeEditor: false });
+        }, 300);
+        input.focus();
+        return valid;
+      }
+    }
+    return valid;
+  }
+  // END
+
+  clearTimeout() {
+    if (this.timeouteClear !== 0) {
+      clearTimeout(this.timeouteClear);
+      this.timeouteClear = 0;
+    }
+  }
+  componentDidMount() {
+    this.refs.inputRef.focus();
   }
 
   componentWillUnmount() {
     this.clearTimeout();
   }
 
-  render(){
-    var editable=this.props.editable,
-        format=this.props.format,
-        attr={
-            ref:"inputRef",
-            onKeyDown:this.handleKeyPress.bind(this),
-            onBlur:this.handleBlur.bind(this)
-        };
-        //put placeholder if exist
-        editable.placeholder&&(attr.placeholder=editable.placeholder);
+  render() {
+    const { editable, format, customEditor } = this.props;
+    const { shakeEditor } = this.state;
+    const attr = {
+      ref: 'inputRef',
+      onKeyDown: this.handleKeyPress,
+      onBlur: this.handleBlur
+    };
+    let { fieldValue } = this.props;
+    // put placeholder if exist
+    editable.placeholder && (attr.placeholder = editable.placeholder);
 
-    var editorClass=classSet({'animated':this.state.shakeEditor,'shake':this.state.shakeEditor});
-    return(
-        <td ref="td" style={{position:'relative'}}>
-            {Editor(editable,attr,format,editorClass,this.props.children||'')}
-            <Notifier ref="notifier"></Notifier>
-        </td>
-    )
+    const editorClass = classSet({ 'animated': shakeEditor, 'shake': shakeEditor });
+    let cellEditor;
+    if (customEditor) {
+      const customEditorProps = {
+        row: this.props.row,
+        ...attr,
+        defaultValue: fieldValue || '',
+        ...customEditor.customEditorParameters
+      };
+      cellEditor = customEditor.getElement(this.handleCustomUpdate, customEditorProps);
+    } else {
+      fieldValue = fieldValue === 0 ? '0' : fieldValue;
+      cellEditor = editor(editable, attr, format, editorClass, fieldValue || '');
+    }
+
+    return (
+      <td ref='td' style={ { position: 'relative' } }>
+        { cellEditor }
+        <Notifier ref='notifier'/>
+      </td>
+    );
   }
 
-  _getCheckBoxValue(e){
+  _getCheckBoxValue(e) {
     let value = '';
-    let values = e.currentTarget.value.split(':');
-    value = e.currentTarget.checked?values[0]:values[1];
+    const values = e.currentTarget.value.split(':');
+    value = e.currentTarget.checked ? values[0] : values[1];
     return value;
   }
-
 }
+
 TableEditColumn.propTypes = {
-  completeEdit: React.PropTypes.func,
-  rowIndex: React.PropTypes.number,
-  colIndex: React.PropTypes.number,
-  blurToSave: React.PropTypes.bool
+  completeEdit: PropTypes.func,
+  rowIndex: PropTypes.number,
+  colIndex: PropTypes.number,
+  blurToSave: PropTypes.bool,
+  editable: PropTypes.oneOfType([ PropTypes.bool, PropTypes.object ]),
+  format: PropTypes.oneOfType([ PropTypes.bool, PropTypes.func ]),
+  row: PropTypes.any,
+  fieldValue: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool,
+    PropTypes.number,
+    PropTypes.array,
+    PropTypes.object
+  ])
 };
 
 

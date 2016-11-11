@@ -1,28 +1,30 @@
-import React from 'react';
-import Const from './Const';
-import Toastr from 'react-toastr';
+import React, { Component } from 'react';
 
-var ToastrContainer=Toastr.ToastContainer;
-var ToastrMessageFactory=React.createFactory(Toastr.ToastMessage.animation);
+import { ToastContainer, ToastMessage } from 'react-toastr';
 
-class Notification extends React.Component{
+
+const ToastrMessageFactory = React.createFactory(ToastMessage.animation);
+
+class Notification extends Component {
   // allow type is success,info,warning,error
-  notice(type,msg,title){
+  notice(type, msg, title) {
     this.refs.toastr[type](
-        msg,title, {
-          mode:'single',
-          timeOut: 5000,
-          extendedTimeOut: 1000,
-          showAnimation: "animated  bounceIn",
-          hideAnimation: "animated bounceOut"
-        });
+      msg, title, {
+        mode: 'single',
+        timeOut: 5000,
+        extendedTimeOut: 1000,
+        showAnimation: 'animated  bounceIn',
+        hideAnimation: 'animated bounceOut'
+      });
   }
 
-  render(){
-    return(
-        <ToastrContainer ref="toastr" toastMessageFactory={ToastrMessageFactory}
-                         id="toast-container"  className="toast-top-right"></ToastrContainer>
-    )
+  render() {
+    return (
+      <ToastContainer ref='toastr'
+        toastMessageFactory={ ToastrMessageFactory }
+        id='toast-container'
+        className='toast-top-right'/>
+    );
   }
 }
 
