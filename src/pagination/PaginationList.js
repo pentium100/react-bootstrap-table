@@ -8,8 +8,11 @@ class PaginationList extends React.Component {
     super(props);
     this.state = {
       currentPage: this.props.currPage,
-      sizePerPage: this.props.sizePerPage
+      sizePerPage: this.props.sizePerPage,
+      pageGo: ''
     };
+      this.setPageGo = this.setPageGo.bind(this);
+      this.goPage = this.goPage.bind(this);
   }
 
   changePage(page) {
@@ -81,7 +84,7 @@ class PaginationList extends React.Component {
 
     return (
       <div className="row" style={{ marginTop: 15 }}>
-        <div className="col-md-6">
+        <div className="col-md-4">
         {
           this.props.sizePerPageList.length > 1 ?
           <div className="dropdown">
@@ -99,16 +102,34 @@ class PaginationList extends React.Component {
           </div>
           : ""
         }
+
+
         </div>
-        <div className="col-md-6">
-          <ul className="pagination" style={pageListStyle}>
+        <div className="col-md-8">
+          <ul className="pagination pagination-jump" style={pageListStyle}>
             {pageBtns}
+              <li className=""><span>跳到:</span></li>
+              <li className=""><input type="text" className="page-input" value={this.state.pageGo} onChange={this.setPageGo}/></li>
+              <li className="page-go"><a role="menuitem" tabIndex="-1"  className="jump-go" href="#" onClick={this.goPage} >GO</a></li>
           </ul>
+
+          <ul className="">
+
+          </ul>
+
         </div>
       </div>
     )
   }
 
+  goPage(e){
+      e.preventDefault();
+    this.changePage(this.state.pageGo, this.state.sizePerPage);
+  }
+    setPageGo(event){
+      this.setState({pageGo: event.target.value});
+
+    }
   makePage() {
     var pages = this.getPages();
     return pages.map(function (page) {
